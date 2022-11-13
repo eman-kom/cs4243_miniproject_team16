@@ -1,3 +1,5 @@
+Team 16's code submission is a zipped copy of https://github.com/pratyushghosh/CS4243_Mini_Project.
+
 In order to test the final model attempted by Team 16, open the following Colaboratory notebook and connect to a GPU-acceleration-enabled runtime (ideally with high RAM):
 
 https://colab.research.google.com/drive/1rGDgCCjdV3McRFNhnAIeUGX4Tc-4f_94?usp=sharing.
