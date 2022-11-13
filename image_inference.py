@@ -40,14 +40,14 @@ def load_image_into_numpy_array(image):
 
 IMAGE_SIZE = (12, 8)
 
-output_image_path = ('output_images')
-output_csv_path = ('output_csvs')
+OPENPOSE_INPUT = ('/content/cs4243_miniproject_team16/openpose_input')
+NORMAL_OUTPUT = ('/content/cs4243_miniproject_team16/normal')
 
-if not os.path.exists(output_image_path):
-    os.makedirs(output_image_path)
+if not os.path.exists(OPENPOSE_INPUT):
+    os.makedirs(OPENPOSE_INPUT)
     
-if not os.path.exists(output_csv_path):
-    os.makedirs(output_csv_path)
+if not os.path.exists(NORMAL_OUTPUT):
+    os.makedirs(NORMAL_OUTPUT)
 
 PATH_TO_TEST_IMAGES_DIR = 'test_images'
 if not os.path.exists(PATH_TO_TEST_IMAGES_DIR):
@@ -58,12 +58,8 @@ TEST_IMAGES = os.listdir('./')
 
 with detection_graph.as_default():
     with tf.Session(graph=detection_graph) as sess:
-        # Definite input and output Tensors for detection_graph
         image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
-        # Each box represents a part of the image where a particular object was detected.
         detection_boxes = detection_graph.get_tensor_by_name('detection_boxes:0')
-        # Each score represent how level of confidence for each of the objects.
-        # Score is shown on the result image, together with the class label.
         detection_scores = detection_graph.get_tensor_by_name('detection_scores:0')
         detection_classes = detection_graph.get_tensor_by_name('detection_classes:0')
         num_detections = detection_graph.get_tensor_by_name('num_detections:0')
@@ -71,58 +67,14 @@ with detection_graph.as_default():
         for entry in TEST_IMAGES:
           image = Image.open(entry)
           width, height = image.size
-          # the array based representation of the image will be used later in order to prepare the
-          # result image with boxes and labels on it.
           image_np = load_image_into_numpy_array(image)
           image_np = cv2.cvtColor(image_np, cv2.COLOR_RGB2BGR)
-          # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
           image_np_expanded = np.expand_dims(image_np, axis=0)
-          # Actual detection.
           (boxes, scores, classes, num) = sess.run(
               [detection_boxes, detection_scores, detection_classes, num_detections],
               feed_dict={image_tensor: image_np_expanded})
               
-          # Visualization of the results of a detection.
-          vis_util.visualize_boxes_and_labels_on_image_array(
-              image_np,
-              np.squeeze(boxes),
-              np.squeeze(classes).astype(np.int32),
-              np.squeeze(scores),
-              category_index,
-              use_normalized_coordinates=True,
-              line_thickness=8,
-              min_score_thresh=0.65)
-          #write images
-          #save the detection result images
-          
-          cv2.imwrite(output_image_path + '/' + os.path.basename(entry),image_np)
-          
-          s_boxes = boxes[scores > 0.9]
-          s_classes = classes[scores > 0.9]
-          s_scores = scores[scores > 0.9]
-          
-          #write table
-          #Save the location coordinate results to the.csv table
-          for i in range(len(s_classes)):
-
-              newdata= pd.DataFrame(0, index=range(1), columns=range(7))
-              newdata.iloc[0,0] = entry.split("\\")[-1].split('.')[0]
-              newdata.iloc[0,1] = s_boxes[i][0]*height  #ymin
-              newdata.iloc[0,2] = s_boxes[i][1]*width     #xmin
-              newdata.iloc[0,3] = s_boxes[i][2]*height    #ymax
-              newdata.iloc[0,4] = s_boxes[i][3]*width     #xmax
-              newdata.iloc[0,5] = s_scores[i]
-              newdata.iloc[0,6] = s_classes[i]
-    
-              data = data.append(newdata)
-          data.to_csv(output_csv_path + '/' + os.path.basename(entry) + '.csv',index = False)
-      
-count = 0
-
-#for element in scores:
-    #if element[0] > 0.65:
-        #count = count + 1
-    
-end =  time.time()
-print("Execution Time: ", end - start)
-print(count)
+          if scores[0][0] >= 0.65:
+            cv2.imwrite(OPENPOSE_INPUT + '/' + os.path.basename(entry), image_np)
+          else:
+            cv2.imwrite(NORMAL_OUTPUT + '/' + os.path.basename(entry), image_np)
