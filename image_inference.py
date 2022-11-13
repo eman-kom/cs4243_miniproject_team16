@@ -7,20 +7,17 @@ import tensorflow as tf
 import zipfile
 import cv2
 
-from distutils.version import StrictVersion
 from collections import defaultdict
 from io import StringIO
 from matplotlib import pyplot as plt
 from PIL import Image
 import pandas as pd
-  
-#os.chdir('./object_detection')
 
 from object_detection.utils import label_map_util
 from object_detection.utils import visualization_utils as vis_util
 
-PATH_TO_MODEL = '../../model.pb'
-PATH_TO_LABELS = '../../gun.pbtxt'
+PATH_TO_MODEL = 'model_a.pb'
+PATH_TO_LABELS = 'gun.pbtxt'
 
 NUM_CLASSES = 6
       
@@ -41,20 +38,23 @@ def load_image_into_numpy_array(image):
   return np.array(image.getdata()).reshape(
       (im_height, im_width, 3)).astype(np.uint8)
 
-PATH_TO_TEST_IMAGES_DIR = '../../test_images'
-os.chdir(PATH_TO_TEST_IMAGES_DIR)
-TEST_IMAGES = os.listdir('./')
-
 IMAGE_SIZE = (12, 8)
 
-output_image_path = ('../output_images')
-output_csv_path = ('../output_csvs')
+output_image_path = ('output_images')
+output_csv_path = ('output_csvs')
 
 if not os.path.exists(output_image_path):
     os.makedirs(output_image_path)
     
 if not os.path.exists(output_csv_path):
     os.makedirs(output_csv_path)
+
+PATH_TO_TEST_IMAGES_DIR = 'test_images'
+if not os.path.exists(PATH_TO_TEST_IMAGES_DIR):
+    os.makedirs(PATH_TO_TEST_IMAGES_DIR)
+
+os.chdir(PATH_TO_TEST_IMAGES_DIR)
+TEST_IMAGES = os.listdir('./')
 
 with detection_graph.as_default():
     with tf.Session(graph=detection_graph) as sess:
@@ -119,9 +119,9 @@ with detection_graph.as_default():
       
 count = 0
 
-for element in scores:
-    if element[0] > 0.65:
-        count = count + 1
+#for element in scores:
+    #if element[0] > 0.65:
+        #count = count + 1
     
 end =  time.time()
 print("Execution Time: ", end - start)
