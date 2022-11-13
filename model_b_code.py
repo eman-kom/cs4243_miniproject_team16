@@ -33,7 +33,6 @@ input = tf.data.Dataset.from_tensor_slices((y_test, test_labels)).batch(1)
 
 model_b = tf.keras.models.load_model(MODEL_B_PATH)
 predictions = model_b.predict(input)
-print(predictions)
 
 if not os.path.exists(CARRYING_OUTPUT):
     os.makedirs(CARRYING_OUTPUT)
@@ -46,7 +45,6 @@ for root, dirs, files in os.walk(MODEL_B_INPUT):
   for name in files:
     if name.endswith('.json'):
       file = os.path.basename(name).replace('_keypoints.json','.jpg')
-      print(file)
       if predictions[entryNo, 1] >= 0.5:
         os.rename(OPENPOSE_INPUT + str(file), THREAT_OUTPUT + str(file))
       else:
